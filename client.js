@@ -13,7 +13,7 @@ var gwserver = "http://" + webservicehost + ":" + webserviceport;
 var data = {"repeater":repeatercall,"started":new Date().getTime()};
 var socket = io(gwserver);
 var cpustats = {};
-var cpustatseconds = 10 * 1000; // in milliseconds
+var cpustatseconds = 60 * 1000; // in milliseconds
 
 console.log(gwserver);
 
@@ -26,11 +26,11 @@ function trimNull(a) {
 }
 
 function getModel() {
-	var mod = {model:'unknown'};
+	var mod = 'unknown';
 	var modelfile = "/proc/device-tree/model";
 	if (fs.existsSync(modelfile)) {
 		var model = fs.readFileSync(modelfile).toString();
-		mod = {model:trimNull(model)};
+		mod = trimNull(model);
 	}
 	return mod;
 }
@@ -52,7 +52,7 @@ function hatRead() {
 data['model'] = getModel();
 data['hat'] = hatRead();
 socket.emit("repeater",data);
-console.log(data);
+// console.log(data);
 
 String.prototype.startsWith = function (str)
 {
@@ -97,7 +97,8 @@ function parseAMBE(stats) {
 }
 
 rptlog.on('line', function(line) {
-	console.log(line);
+	// console.log(line);
+	var data = {repeater:repeatercall};
 	if (line.startsWith('M:')) {
 		data['datestring'] = line.substr(3,19);
 		var payload = line.substr(23).trim(); 
@@ -125,9 +126,6 @@ rptlog.on('line', function(line) {
 	}
 	data['timestamp'] = new Date().getTime();
 	socket.emit('repeater', data);
-});
-socket.on('message', function(data) {
-	console.log(data)
 });
 
 var SecondsTohhmmss = function(totalSeconds) {
@@ -183,7 +181,6 @@ setInterval(
 				}
 			});
 		cpustats['timestamp'] = new Date().getTime();
-		console.log(JSON.stringify({message : cpustats}));
 		socket.emit("repeater", cpustats);
 }, cpustatseconds);
 
