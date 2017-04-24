@@ -102,7 +102,7 @@ rptlog.on('line', function(line) {
 	if (line.startsWith('M:')) {
 		data['datestring'] = line.substr(3,19);
 		var payload = line.substr(23).trim(); 
-		data['payload'] = payload;
+		// data['payload'] = payload;
 		if (payload.startsWith('Transmitting to')) {
 			data['transmit'] = parseHDR(payload.substr(payload.indexOf('My:')));
 		}
@@ -150,6 +150,8 @@ var SecondsTohhmmss = function(totalSeconds) {
 setInterval(
 	function() {
 		cpustats['repeater'] = repeatercall;
+		cpustats['model'] = getModel();
+		cpustats['hat'] = hatRead();
 		fs.readFileSync("/proc/uptime").toString().split('\n').forEach(
 			function(line) {
 				if (line.trim().length > 0) {
@@ -163,8 +165,8 @@ setInterval(
 					var la = line.split(" ");
 					var loadavg = {};
 					loadavg["1m"] = la[0];
-					loadavg["5m"] = la[0];
-					loadavg["15m"] = la[0];
+					loadavg["5m"] = la[1];
+					loadavg["15m"] = la[2];
 					cpustats['loadavg'] = loadavg;
 				}
 			});
