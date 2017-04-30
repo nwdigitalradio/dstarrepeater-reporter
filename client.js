@@ -170,18 +170,40 @@ setInterval(
 					cpustats['loadavg'] = loadavg;
 				}
 			});
-		fs.readFileSync("/sys/class/thermal/thermal_zone0/temp").toString().split('\n').forEach(
-			function(line) {
-				if (line.trim().length > 0) {
-					var cputemp = {};
-					var temps = line.split(" ");
-					var centigrade = temps[0] / 1000;
-					var fahrenheit = (centigrade * 1.8) + 32;
-					cputemp['c'] = Math.round(centigrade * 100) / 100;
-					cputemp['f'] = Math.round(fahrenheit * 100) / 100;
-					cpustats['cputemp'] = cputemp;
-				}
-			});
+		if (fs.existsSync(thermFile)) {
+                        fs.readFileSync(thermFile).toString().split('\n').forEach(
+                        function(line) {
+                                if (line.trim().length > 0) {
+                                        var cputemp = {};
+                                        var temps = line.split(" ");
+                                        var centigrade = temps[0] / 1000;
+                                        var fahrenheit = (centigrade * 1.8) + 32;
+                                        cputemp['c'] = Math.round(centigrade * 100) / 100;
+                                        cputemp['f'] = Math.round(fahrenheit * 100) / 100;
+                                        gwstats['cputemp'] = cputemp;
+                                }
+                        });
+                } else {
+                        var lm_sensors = require('sensors.js');
+
+/*
+                        lm_sensors.sensors(function (data, error) {
+                                if (error) throw error;
+                                console.log(data);
+
+                                //core temperature is embedded object, appears standard for all motherboards
+                                var temps = data['coretemp-isa-0000']['ISA adapter']['Core 0']['value'];
+
+                                // temps is already in centigrade
+                                //var centigrade = temps / 1000;
+                                var centigrade = temps;
+                                var fahrenheit = (centigrade * 1.8) + 32;
+                                centigrade = Math.round(centigrade * 100) / 100;
+                                fahrenheit = Math.round(fahrenheit * 100) / 100;
+                                stats['cputemp'] = centigrade + "C " + fahrenheit + "F";
+                        });
+*/
+                }
 		cpustats['timestamp'] = new Date().getTime();
 		socket.emit("repeater", cpustats);
 }, cpustatseconds);
