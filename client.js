@@ -4,6 +4,7 @@ var ini = require("ini");
 var Tail = require('tail').Tail;
 var rptlog = new Tail('/var/log/opendv/dstarrepeaterd_1.log');
 var dstarrptrconfig = '/etc/opendv/dstarrepeater_' + '1';
+var thermFile = '/sys/class/thermal/thermal_zone0/temp';
 var curConfStr = fs.readFileSync(dstarrptrconfig, { encoding : "UTF-8" });
 var rptrconf = ini.parse(curConfStr);
 var webserviceport = 3000;
@@ -180,7 +181,7 @@ setInterval(
                                         var fahrenheit = (centigrade * 1.8) + 32;
                                         cputemp['c'] = Math.round(centigrade * 100) / 100;
                                         cputemp['f'] = Math.round(fahrenheit * 100) / 100;
-                                        gwstats['cputemp'] = cputemp;
+                                        cpustats['cputemp'] = cputemp;
                                 }
                         });
                 } else {
@@ -200,7 +201,7 @@ setInterval(
                                 var fahrenheit = (centigrade * 1.8) + 32;
                                 centigrade = Math.round(centigrade * 100) / 100;
                                 fahrenheit = Math.round(fahrenheit * 100) / 100;
-                                stats['cputemp'] = centigrade + "C " + fahrenheit + "F";
+                                cpustats['cputemp'] = centigrade + "C " + fahrenheit + "F";
                         });
 */
                 }
