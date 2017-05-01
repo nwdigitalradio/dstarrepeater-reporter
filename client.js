@@ -2,8 +2,13 @@ var io = require("socket.io-client");
 var fs = require("fs");
 var ini = require("ini");
 var Tail = require('tail').Tail;
-var rptlog = new Tail('/var/log/opendv/dstarrepeaterd_1.log');
-var dstarrptrconfig = '/etc/opendv/dstarrepeater_' + '1';
+var logdir = process.env.LOGDIR || "/var/log/opendv";
+var confdir = process.env.CONFDIR || "/etc/opendv";
+var rptrnum = process.argv[2] || "1";
+var rptrlogfile = logdir + "/dstarrepeaterd_" + rptrnum + ".log";
+var dstarrptrconfig = confdir + "/dstarrepeater_" + rptrnum;
+console.log(dstarrptrconfig);
+console.log(rptrlogfile);
 var thermFile = '/sys/class/thermal/thermal_zone0/temp';
 var curConfStr = fs.readFileSync(dstarrptrconfig, { encoding : "UTF-8" });
 var rptrconf = ini.parse(curConfStr);
@@ -15,6 +20,8 @@ var data = {"repeater":repeatercall,"started":new Date().getTime()};
 var socket = io(gwserver);
 var cpustats = {};
 var cpustatseconds = 60 * 1000; // in milliseconds
+
+var rptlog = new Tail(rptrlogfile);
 
 console.log(gwserver);
 
